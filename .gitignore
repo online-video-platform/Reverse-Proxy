@@ -1,0 +1,4 @@
+transcoded/
+tmp/
+var/cache/nginx/
+origin-cached/

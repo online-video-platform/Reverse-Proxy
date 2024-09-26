@@ -52,6 +52,7 @@ services:
     tmpfs:
       - /tmp/nginx/conf.d:rw,exec,nosuid,nodev,size=10M,uid=1014,gid=1014
     volumes:
+      - ./var/cache/:/var/cache/
       - ./include-tmp.conf:/etc/nginx/conf.d/10-include-tmp.conf:ro
       - ./nginx-cache.conf:/etc/nginx/templates/default.conf.template:ro
     ports:
