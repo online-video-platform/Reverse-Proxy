@@ -1,0 +1,50 @@
+# docker run -d -p 3001:3001 --name transcoder -e TARGET=http://nginx:80 -e CACHE_PATH=/cached -e PORT=3001 ghcr.io/online-video-platform/origin:main
+services:
+  torrserver:
+    image: ghcr.io/yourok/torrserver:latest
+    stop_grace_period: 1s
+    volumes:
+      - ~/ts:/opt/ts
+    restart: unless-stopped
+  origin-proxy:
+    image: ghcr.io/online-video-platform/origin:main
+    stop_grace_period: 1s
+    volumes:
+      - ./origin-cached/:/cached/
+      - ./tmp/:/tmp/
+    environment:
+      - TARGET=http://torrserver:8090
+      - CACHE_PATH=/cached/
+      - PORT=3001
+    restart: unless-stopped
+    depends_on:
+      torrserver:
+        condition: service_started
+  transcoding-proxy:
+    image: ghcr.io/online-video-platform/transcode:main
+    stop_grace_period: 1s
+    volumes:
+      - ./transcoded/:/cached/
+      - ./proxy-cached/:/proxy-cached/
+      - ./tmp/:/tmp/
+    environment:
+      - PROXY_TARGET=http://origin-proxy:3001
+      - CACHE_PATH=/cached/
+      - PORT=3001
+    restart: unless-stopped
+    depends_on:
+      origin-proxy:
+        condition: service_started
+  reverse-proxy:
+    image: nginx:alpine
+    stop_grace_period: 1s
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./proxy-cached/:/proxy-cached/
+      - ./html/:/usr/share/nginx/html/player/
+    ports:
+      - "8090:80"
+    restart: unless-stopped
+    depends_on:
+      transcoding-proxy:
+        condition: service_started
