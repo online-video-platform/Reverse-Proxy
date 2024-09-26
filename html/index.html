@@ -12,7 +12,7 @@
     <textarea v-model="magnet_link" @input="updateLink" placeholder="Enter magnet link"></textarea>
     <div v-if="streamUrl">
         <video controls ref="video">
-            <source :src="streamUrl" type="video/mp4">
+            <source :src="streamUrl" type="application/x-mpegURL">
             Your browser does not support the video tag.
         </video>
     </div>
@@ -80,8 +80,8 @@
                     // stale or expired or miss
                     let cfCacheStatus = headReq.headers['cf-cache-status']
                     if (cfCacheStatus !== 'HIT' || cfCacheStatus !== 'REVALIDATED') {
-                        component.streamUrl = `/stream/${firstFileStats.nice_filename}?link=${hash}&index=${firstFileStats.id}&play&${new Date().getTime()}`
-                        refVideo.load()
+                        // component.streamUrl = `/stream/${firstFileStats.nice_filename}?link=${hash}&index=${firstFileStats.id}&play&${new Date().getTime()}`
+                        // refVideo.load()
                     }else{
                         refVideo.play()
                     }
@@ -94,7 +94,3 @@
         }
     }).mount('#app')
 </script>
-
-
-
-
