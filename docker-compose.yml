@@ -36,15 +36,23 @@ services:
       origin-proxy:
         condition: service_started
   reverse-proxy:
-    image: nginx:alpine
+    image: ghcr.io/online-video-platform/reverse-proxy:main
     stop_grace_period: 1s
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./proxy-cached/:/proxy-cached/
-      - ./html/:/usr/share/nginx/html/player/
     ports:
       - "8090:80"
     restart: unless-stopped
     depends_on:
       transcoding-proxy:
         condition: service_started
+  varnish-cache:
+    environment:
+      - DOMAIN_FROM_ENV=http-192-168-1-104-8090.schnworks.com
+      - NGINX_ENVSUBST_OUTPUT_DIR=/tmp/nginx/conf.d
+    image: nginx
+    tmpfs:
+      - /tmp/nginx/conf.d:rw,exec,nosuid,nodev,size=10M,uid=1014,gid=1014
+    volumes:
+      - ./include-tmp.conf:/etc/nginx/conf.d/10-include-tmp.conf:ro
+      - ./nginx-cache.conf:/etc/nginx/templates/default.conf.template:ro
+    ports:
+      - "8091:80"
