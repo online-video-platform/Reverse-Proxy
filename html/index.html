@@ -63,8 +63,8 @@
                 // 
                 console.log(actionGet.data.file_stats);
                 component.file_stats = actionGet.data.file_stats
-                    .filter(file => file.length > 10_000)
-                    .filter(file => file.path.includes('.mp4') || file.path.includes('.mkv') || file.path.includes('.avi'))
+                    .filter(file => file.length > 10_000_000) // > 10MB
+                    .filter(file => file.path.includes('.mp4') || file.path.includes('.mkv') || file.path.includes('.avi') || file.path.includes('.webm') || file.path.includes('.flv'))
                     .map((file, index) => {
                         let ext = file.path.split('.').pop()
                         file.nice_filename = file.path.replace(/[^a-zA-Z0-9]/g, '_') + '.' + ext
